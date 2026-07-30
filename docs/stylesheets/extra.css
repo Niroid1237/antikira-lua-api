@@ -53,8 +53,7 @@ body[data-md-color-scheme="slate"] .md-nav__list,
 body[data-md-color-scheme="slate"] .md-nav__item,
 body[data-md-color-scheme="slate"] .md-nav__link,
 body[data-md-color-scheme="slate"] article,
-body[data-md-color-scheme="slate"] main,
-body[data-md-color-scheme="slate"] .md-content__inner > :is(main, article, div) {
+body[data-md-color-scheme="slate"] main {
   background-color: transparent !important;
 }
 
