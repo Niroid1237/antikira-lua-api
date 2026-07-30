@@ -1,25 +1,16 @@
-# Antikira Lua API
-
-Antikira now ships with a built-in `LuaJIT` runtime, `ffi` support, script management in the menu, and a documented in-process API for callbacks, rendering, entity access, user commands, game events, and config values.
-
-This documentation is organized as a dedicated Antikira reference site for writing, testing, and maintaining Lua scripts against the current project runtime.
-
 <div class="ak-hero">
   <div class="ak-hero__badge">LuaJIT + FFI + In-Game Script Manager</div>
   <h2>Built for the runtime that ships in this repository</h2>
   <p>Use these pages as the ground truth for callbacks, modules, objects, config access, render functions, and script lifecycle behavior.</p>
+  <div class="ak-badges">
+    <span class="ak-badge ak-badge--blue">LuaJIT Runtime</span>
+    <span class="ak-badge ak-badge--green">FFI Support</span>
+    <span class="ak-badge ak-badge--purple">Drawing API</span>
+    <span class="ak-badge ak-badge--orange">Entity Access</span>
+    <span class="ak-badge ak-badge--blue">Config R/W</span>
+    <span class="ak-badge ak-badge--green">Event System</span>
+  </div>
 </div>
-
-## What Is Available
-
-- `LuaJIT` runtime
-- `ffi` support
-- callback registration
-- drawing API
-- entity and event access
-- `create_move` command access
-- config value read/write access
-- script environment helpers
 
 ## Fast Paths
 
@@ -52,21 +43,39 @@ This documentation is organized as a dedicated Antikira reference site for writi
 
 ## Main Modules
 
-- [`antikira`](lua/modules/antikira.md)
-- [`globals`](lua/modules/globals.md)
-- [`engine`](lua/modules/engine.md)
-- [`entitylist`](lua/modules/entitylist.md)
-- [`render`](lua/modules/render.md)
-- [`menu`](lua/modules/menu.md)
-- [`environment`](lua/modules/environment.md)
-- [`config`](lua/modules/config.md)
-- [`buttons`](lua/modules/buttons.md)
+<div class="ak-func-list">
+<span class="ak-func-tag">antikira</span>
+<span class="ak-func-tag">globals</span>
+<span class="ak-func-tag">engine</span>
+<span class="ak-func-tag">entitylist</span>
+<span class="ak-func-tag">render</span>
+<span class="ak-func-tag">menu</span>
+<span class="ak-func-tag">environment</span>
+<span class="ak-func-tag">config</span>
+<span class="ak-func-tag">buttons</span>
+</div>
+
+- [`antikira`](lua/modules/antikira.md) — Utility functions owned by the runtime
+- [`globals`](lua/modules/globals.md) — Engine timing and shared state (alias: `global_vars`)
+- [`engine`](lua/modules/engine.md) — Client engine helpers
+- [`entitylist`](lua/modules/entitylist.md) — Entity lookup helpers
+- [`render`](lua/modules/render.md) — Immediate drawing (alias: `imgui`)
+- [`menu`](lua/modules/menu.md) — Menu state helpers
+- [`environment`](lua/modules/environment.md) — Script path helpers
+- [`config`](lua/modules/config.md) — Config variable access
+- [`buttons`](lua/modules/buttons.md) — Bitmask constants
 
 ## Objects
 
-- [`entity`](lua/objects/entity.md)
-- [`cmd`](lua/objects/cmd.md)
-- [`event`](lua/objects/event.md)
+<div class="ak-func-list">
+<span class="ak-func-tag">entity</span>
+<span class="ak-func-tag">cmd</span>
+<span class="ak-func-tag">event</span>
+</div>
+
+- [`entity`](lua/objects/entity.md) — Entity objects from `entitylist` and events
+- [`cmd`](lua/objects/cmd.md) — Command objects in `create_move` callbacks
+- [`event`](lua/objects/event.md) — Event objects in `event` and event-specific callbacks
 
 ## Notes
 
