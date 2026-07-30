@@ -1,0 +1,2708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Antikira Lua API</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg-primary: #0a0c0f;
+  --bg-secondary: #111418;
+  --bg-card: #161b22;
+  --bg-card-hover: #1c2333;
+  --bg-code: #0d1117;
+  --border: #1e2533;
+  --border-hover: #2d3648;
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --text-muted: #6e7681;
+  --accent: #58a6ff;
+  --accent-glow: rgba(88, 166, 255, 0.15);
+  --accent-green: #3fb950;
+  --accent-purple: #bc8cff;
+  --accent-orange: #d29922;
+  --accent-red: #f85149;
+  --accent-cyan: #39d2c0;
+  --sidebar-width: 280px;
+  --content-max: 960px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.7;
+  display: flex;
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 0; left: 0;
+  width: var(--sidebar-width);
+  height: 100vh;
+  background: rgba(17, 20, 24, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  z-index: 100;
+  padding: 0;
+}
+
+.sidebar-header {
+  padding: 24px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(135deg, rgba(88,166,255,0.08), transparent);
+}
+
+.sidebar-header h1 {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+.sidebar-header h1 span { color: var(--accent); }
+
+.sidebar-header .version {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  font-weight: 400;
+}
+
+/* Search */
+.search-wrap {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.search-wrap input {
+  width: 100%;
+  padding: 8px 12px 8px 32px;
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-wrap input::placeholder { color: var(--text-muted); }
+.search-wrap input:focus { border-color: var(--accent); }
+
+.search-wrap {
+  position: relative;
+}
+
+.search-wrap .search-icon {
+  position: absolute;
+  left: 28px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.sidebar-nav { padding: 8px 0; }
+
+.nav-section {
+  padding: 10px 20px 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text-muted);
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 20px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 400;
+  transition: all 0.15s;
+  border-left: 2px solid transparent;
+}
+
+.nav-item:hover {
+  color: var(--text-primary);
+  background: rgba(255,255,255,0.03);
+  border-left-color: var(--accent);
+}
+
+.nav-item.active {
+  color: var(--accent);
+  background: var(--accent-glow);
+  border-left-color: var(--accent);
+  font-weight: 500;
+}
+
+.nav-item .nav-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.nav-item.active .nav-icon { opacity: 1; }
+
+/* Main */
+.main {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Hero */
+.hero {
+  padding: 64px 48px 48px;
+  background: linear-gradient(135deg, #0f1629 0%, var(--bg-primary) 60%);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(88,166,255,0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 40%, rgba(88,166,255,0.04) 0%, transparent 50%),
+    radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.06) 0%, transparent 100%),
+    radial-gradient(1px 1px at 30% 60%, rgba(255,255,255,0.06) 0%, transparent 100%),
+    radial-gradient(1px 1px at 50% 10%, rgba(255,255,255,0.06) 0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 80%, rgba(255,255,255,0.06) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 40%, rgba(255,255,255,0.06) 0%, transparent 100%);
+  background-size: 100% 100%, 100% 100%, 60px 60px, 60px 60px, 60px 60px, 60px 60px, 60px 60px;
+  pointer-events: none;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  top: -50%; right: -10%;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(88,166,255,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero h1 {
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.hero h1 span { color: var(--accent); }
+
+.hero p {
+  color: var(--text-secondary);
+  font-size: 15px;
+  max-width: 680px;
+  line-height: 1.7;
+  position: relative;
+}
+
+.hero .badges {
+  display: flex;
+  gap: 8px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.3px;
+}
+
+.badge-blue { background: rgba(88,166,255,0.15); color: var(--accent); border: 1px solid rgba(88,166,255,0.25); box-shadow: 0 0 12px rgba(88,166,255,0.08); }
+.badge-green { background: rgba(63,185,80,0.15); color: var(--accent-green); border: 1px solid rgba(63,185,80,0.25); box-shadow: 0 0 12px rgba(63,185,80,0.08); }
+.badge-purple { background: rgba(188,140,255,0.15); color: var(--accent-purple); border: 1px solid rgba(188,140,255,0.25); box-shadow: 0 0 12px rgba(188,140,255,0.08); }
+.badge-orange { background: rgba(210,153,34,0.15); color: var(--accent-orange); border: 1px solid rgba(210,153,34,0.25); box-shadow: 0 0 12px rgba(210,153,34,0.08); }
+
+/* Content */
+.content-wrap {
+  display: flex;
+  max-width: calc(var(--content-max) + 220px);
+  margin: 0 auto;
+  padding: 0 48px;
+  position: relative;
+}
+
+.content {
+  flex: 1;
+  max-width: var(--content-max);
+  padding: 32px 0 64px;
+}
+
+/* On This Page */
+.on-this-page {
+  display: none;
+  position: sticky;
+  top: 32px;
+  align-self: flex-start;
+  width: 200px;
+  flex-shrink: 0;
+  margin-left: 20px;
+  padding: 16px 0 16px 20px;
+  border-left: 1px solid var(--border);
+}
+
+@media (min-width: 1281px) {
+  .on-this-page { display: block; }
+}
+
+.on-this-page h4 {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.on-this-page a {
+  display: block;
+  padding: 4px 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.15s;
+  line-height: 1.5;
+}
+
+.on-this-page a:hover { color: var(--accent); }
+.on-this-page a.active { color: var(--accent); font-weight: 500; }
+
+/* Sections */
+.section {
+  margin-bottom: 48px;
+  scroll-margin-top: 24px;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.section:last-child { margin-bottom: 0; }
+
+.section-title {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  margin-bottom: 4px;
+  color: var(--text-primary);
+}
+
+.section-desc {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+/* Cards */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  border-color: var(--border-hover);
+  box-shadow: 0 0 20px rgba(88,166,255,0.06);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  cursor: pointer;
+  user-select: none;
+  gap: 12px;
+}
+
+.card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.card-header .fn-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-header .fn-returns {
+  font-size: 11px;
+  color: var(--accent-green);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.card-header .arrow-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: transform 0.25s ease;
+}
+
+.card.open .arrow-icon { transform: rotate(90deg); }
+
+.card-body-wrap {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.card.open .card-body-wrap {
+  max-height: 600px;
+}
+
+.card-body {
+  padding: 0 20px 16px;
+}
+
+.card-body p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  line-height: 1.7;
+}
+
+.card-body p:last-child { margin-bottom: 0; }
+
+.card-body .param {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.card-body .param code {
+  color: var(--accent-orange);
+}
+
+/* Module cards (non-collapsible) */
+.module-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 10px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.module-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: 0 0 20px rgba(88,166,255,0.06);
+}
+
+.module-card h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.module-card h3 a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.module-card h3 a:hover { text-decoration: underline; }
+
+.module-card p {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.module-card .func-list {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.func-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 3px 8px;
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--accent);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.func-tag:hover {
+  background: var(--accent-glow);
+  border-color: rgba(88,166,255,0.3);
+}
+
+/* Code blocks */
+.code-block {
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin: 12px 0;
+  overflow: hidden;
+}
+
+.code-block .code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.code-block pre {
+  padding: 14px;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--text-primary);
+  tab-size: 4;
+}
+
+.code-block code { font-family: inherit; }
+
+.code-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.code-tab {
+  padding: 7px 14px;
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+}
+
+.code-tab:hover { color: var(--text-primary); }
+.code-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* Syntax highlighting */
+.kw { color: #ff7b72; }
+.fn { color: #d2a8ff; }
+.str { color: #a5d6ff; }
+.num { color: #79c0ff; }
+.com { color: #6e7681; font-style: italic; }
+.ty { color: #ffa657; }
+.va { color: #e6edf3; }
+.op { color: #79c0ff; }
+
+/* Inline code */
+p code, li code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: var(--accent);
+}
+
+/* Lists */
+.section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.section ul li {
+  position: relative;
+  padding-left: 20px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  line-height: 1.6;
+}
+
+.section ul li::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 9px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.5;
+}
+
+.section ul li strong { color: var(--text-primary); }
+
+/* Links grid */
+.links-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 8px;
+}
+
+.links-grid a {
+  display: block;
+  padding: 12px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+
+.links-grid a:hover {
+  background: var(--accent-glow);
+  border-color: rgba(88,166,255,0.3);
+  transform: translateY(-1px);
+}
+
+/* Quick links */
+.quick-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.quick-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+
+.quick-links a:hover {
+  background: var(--accent-glow);
+  border-color: rgba(88,166,255,0.3);
+  color: var(--accent);
+}
+
+/* Info boxes */
+.info-box {
+  background: rgba(88,166,255,0.08);
+  border: 1px solid rgba(88,166,255,0.2);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+  margin: 12px 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.info-box strong { color: var(--accent); }
+
+.warning-box {
+  background: rgba(210,153,34,0.08);
+  border: 1px solid rgba(210,153,34,0.2);
+}
+
+.warning-box strong { color: var(--accent-orange); }
+
+/* Sub headers */
+.section h3 {
+  font-size: 15px;
+  margin: 24px 0 8px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.section h3.sub-header {
+  margin: 20px 0 12px;
+}
+
+/* Section text */
+.section-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+/* Scroll to top */
+.scroll-top {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 40px;
+  height: 40px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+  transition: all 0.25s;
+  z-index: 50;
+}
+
+.scroll-top.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.scroll-top:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-glow);
+}
+
+.scroll-top i {
+  width: 18px;
+  height: 18px;
+}
+
+/* Footer */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 20px 0;
+  margin-top: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.footer span {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.footer a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 12px;
+  transition: color 0.15s;
+}
+
+.footer a:hover { color: var(--accent); }
+
+/* Mobile toggle */
+.sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 200;
+  width: 36px;
+  height: 36px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 99;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .sidebar-toggle { display: flex; }
+  .main { margin-left: 0; }
+  .hero { padding: 60px 20px 32px; }
+  .hero h1 { font-size: 26px; }
+  .content-wrap { padding: 0 20px; }
+  .content { padding: 24px 0 48px; }
+  .links-grid { grid-template-columns: 1fr; }
+}
+
+@media (min-width: 901px) and (max-width: 1280px) {
+  .content-wrap { padding: 0 32px; }
+  .hero { padding: 48px 32px 40px; }
+  .on-this-page { display: none; }
+}
+
+/* Print */
+@media print {
+  .sidebar { display: none; }
+  .main { margin-left: 0; }
+  .card-body-wrap { max-height: none !important; }
+  .card-header .arrow-icon { display: none; }
+  .scroll-top { display: none; }
+  .on-this-page { display: none; }
+}
+
+/* Animation keyframes */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Search highlight */
+.search-highlight {
+  background: rgba(88,166,255,0.2);
+  border-radius: 2px;
+}
+</style>
+</head>
+<body>
+
+<button class="sidebar-toggle" id="sidebarToggle">
+  <i data-lucide="menu" style="width:18px;height:18px"></i>
+</button>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h1>Antikira <span>Lua API</span></h1>
+    <div class="version">Built-in LuaJIT Runtime</div>
+  </div>
+  <div class="search-wrap">
+    <i data-lucide="search" class="search-icon"></i>
+    <input type="text" id="searchInput" placeholder="Search docs..." autocomplete="off">
+  </div>
+  <nav class="sidebar-nav" id="sidebarNav">
+    <div class="nav-section">Getting Started</div>
+    <a href="#overview" class="nav-item active"><i data-lucide="info" class="nav-icon"></i>Overview</a>
+    <a href="#getting-started" class="nav-item"><i data-lucide="play" class="nav-icon"></i>Getting Started</a>
+    <a href="#runtime" class="nav-item"><i data-lucide="cpu" class="nav-icon"></i>Runtime</a>
+    <a href="#callbacks" class="nav-item"><i data-lucide="refresh-cw" class="nav-icon"></i>Callbacks</a>
+    <a href="#api-overview" class="nav-item"><i data-lucide="list" class="nav-icon"></i>API Overview</a>
+
+    <div class="nav-section">Modules</div>
+    <a href="#module-antikira" class="nav-item"><i data-lucide="package" class="nav-icon"></i>antikira</a>
+    <a href="#module-globals" class="nav-item"><i data-lucide="globe" class="nav-icon"></i>globals</a>
+    <a href="#module-engine" class="nav-item"><i data-lucide="settings" class="nav-icon"></i>engine</a>
+    <a href="#module-entitylist" class="nav-item"><i data-lucide="users" class="nav-icon"></i>entitylist</a>
+    <a href="#module-render" class="nav-item"><i data-lucide="palette" class="nav-icon"></i>render</a>
+    <a href="#module-menu" class="nav-item"><i data-lucide="menu" class="nav-icon"></i>menu</a>
+    <a href="#module-environment" class="nav-item"><i data-lucide="folder" class="nav-icon"></i>environment</a>
+    <a href="#module-config" class="nav-item"><i data-lucide="toggle-left" class="nav-icon"></i>config</a>
+    <a href="#module-buttons" class="nav-item"><i data-lucide="keyboard" class="nav-icon"></i>buttons</a>
+
+    <div class="nav-section">Objects</div>
+    <a href="#object-entity" class="nav-item"><i data-lucide="bot" class="nav-icon"></i>entity</a>
+    <a href="#object-cmd" class="nav-item"><i data-lucide="terminal" class="nav-icon"></i>cmd</a>
+    <a href="#object-event" class="nav-item"><i data-lucide="zap" class="nav-icon"></i>event</a>
+  </nav>
+</aside>
+
+<!-- Main -->
+<div class="main">
+
+<!-- Hero -->
+<section class="hero" id="overview">
+  <h1>Antikira <span>Lua API</span></h1>
+  <p>Antikira ships with a built-in <strong>LuaJIT</strong> runtime, <strong>ffi</strong> support, script management in the menu, and a documented in-process API for callbacks, rendering, entity access, user commands, game events, and config values.</p>
+  <div class="badges">
+    <span class="badge badge-blue"><i data-lucide="zap" style="width:12px;height:12px"></i>LuaJIT Runtime</span>
+    <span class="badge badge-green"><i data-lucide="link" style="width:12px;height:12px"></i>FFI Support</span>
+    <span class="badge badge-purple"><i data-lucide="pen-tool" style="width:12px;height:12px"></i>Drawing API</span>
+    <span class="badge badge-orange"><i data-lucide="target" style="width:12px;height:12px"></i>Entity Access</span>
+    <span class="badge badge-blue"><i data-lucide="sliders" style="width:12px;height:12px"></i>Config R/W</span>
+    <span class="badge badge-green"><i data-lucide="radio" style="width:12px;height:12px"></i>Event System</span>
+  </div>
+</section>
+
+<div class="content-wrap">
+<div class="content">
+
+<!-- Getting Started -->
+<section class="section" id="getting-started">
+  <h2 class="section-title">Getting Started</h2>
+  <p class="section-desc">Quick start guide for writing Lua scripts with Antikira.</p>
+
+  <div class="info-box">
+    <strong>Runtime:</strong> Antikira uses <strong>LuaJIT</strong>, not stock Lua 5.1 or Lua 5.4. Scripts can use <code>local ffi = ffi or require("ffi")</code>.
+  </div>
+
+  <h3>Scripts Folder</h3>
+  <p class="section-text">Scripts are loaded from <code>C:\Antikira\scripts</code>. On first initialization the runtime creates <code>example.lua</code> automatically.</p>
+
+  <h3>Menu Workflow</h3>
+  <p class="section-text">Open the cheat menu and go to <strong>SCRIPTS</strong>. Actions: Refresh, Open folder, Load, Unload, Reload.</p>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">First Script</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <div class="code-block">
+        <div class="code-header"><span>example.lua</span></div>
+        <pre><code><span class="kw">register_callback</span>(<span class="str">"draw"</span>, <span class="kw">function</span>()
+    <span class="fn">render.text</span>(<span class="num">20</span>, <span class="num">20</span>, <span class="str">"hello from lua"</span>, <span class="fn">color_t</span>(<span class="num">1.0</span>, <span class="num">1.0</span>, <span class="num">1.0</span>, <span class="num">1.0</span>), <span class="num">12</span>)
+<span class="kw">end</span>)</code></pre>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">Event Example</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <div class="code-block">
+        <div class="code-header"><span>event.lua</span></div>
+        <pre><code><span class="kw">register_callback</span>(<span class="str">"player_hurt"</span>, <span class="kw">function</span>(<span class="va">event</span>)
+    <span class="kw">local</span> <span class="va">victim</span> = <span class="va">event</span>:<span class="fn">get_player_pawn</span>(<span class="str">"userid"</span>)
+    <span class="kw">if</span> <span class="va">victim</span> <span class="kw">and</span> <span class="va">victim</span>:<span class="fn">is_valid</span>() <span class="kw">then</span>
+        <span class="fn">antikira.notify</span>(<span class="str">"hurt: "</span> .. <span class="va">victim</span>:<span class="fn">get_name</span>())
+    <span class="kw">end</span>
+<span class="kw">end</span>)</code></pre>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">Create Move Example</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <div class="code-block">
+        <div class="code-header"><span>create_move.lua</span></div>
+        <pre><code><span class="kw">register_callback</span>(<span class="str">"create_move"</span>, <span class="kw">function</span>(<span class="va">cmd</span>)
+    <span class="kw">if</span> <span class="va">cmd</span>:<span class="fn">has_button</span>(<span class="va">buttons</span>.<span class="va">IN_JUMP</span>) <span class="kw">then</span>
+        <span class="va">cmd</span>:<span class="fn">add_button</span>(<span class="va">buttons</span>.<span class="va">IN_DUCK</span>)
+    <span class="kw">end</span>
+<span class="kw">end</span>)</code></pre>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">Config Example</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <div class="code-block">
+        <div class="code-header"><span>config.lua</span></div>
+        <pre><code><span class="fn">config.set_bool</span>(<span class="str">"m_enabled_autostrafe"</span>, <span class="kw">true</span>)
+<span class="fn">config.set_int</span>(<span class="str">"m_autostrafe_mode"</span>, <span class="num">1</span>)
+<span class="fn">config.set_int</span>(<span class="str">"m_autostrafe_boost"</span>, <span class="num">100</span>)
+<span class="fn">config.set_int</span>(<span class="str">"m_hitchance_awp"</span>, <span class="num">70</span>)</code></pre>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <h3>Recommended Reading Order</h3>
+  <ul>
+    <li><strong>1.</strong> Runtime</li>
+    <li><strong>2.</strong> Callbacks</li>
+    <li><strong>3.</strong> Module: render</li>
+    <li><strong>4.</strong> Module: config</li>
+    <li><strong>5.</strong> Object: entity</li>
+    <li><strong>6.</strong> Object: cmd</li>
+    <li><strong>7.</strong> FFI Notes</li>
+  </ul>
+</section>
+
+<!-- Runtime -->
+<section class="section" id="runtime">
+  <h2 class="section-title">Runtime</h2>
+  <p class="section-desc">How the LuaJIT runtime works inside Antikira.</p>
+
+  <div class="info-box">
+    <strong>Engine:</strong> Antikira embeds <strong>LuaJIT</strong>. This gives you <strong>ffi</strong> support and makes most public CS2 Lua snippets easier to adapt.
+  </div>
+
+  <h3>Script Loading</h3>
+  <p class="section-text">Scripts are loaded from <code>C:\Antikira\scripts</code>. The runtime creates the directory if missing, creates <code>example.lua</code> on first init, keeps one Lua state per loaded script, and destroys it on unload.</p>
+
+  <h3>Package Search Paths</h3>
+  <p class="section-text">Antikira appends script-local paths to Lua's package search path:</p>
+  <ul>
+    <li><code>C:\Antikira\scripts\?.lua</code></li>
+    <li><code>C:\Antikira\scripts\?\init.lua</code></li>
+    <li><code>C:\Antikira\scripts\?.dll</code></li>
+  </ul>
+
+  <h3>Error Behavior</h3>
+  <p class="section-text">If a callback throws: the error is logged, an in-game notification is shown, and the current callback invocation stops. The script is not deleted.</p>
+
+  <h3>FFI</h3>
+  <p class="section-text"><code>ffi</code> is exposed globally if LuaJIT can load it: <code>local ffi = ffi or require("ffi")</code></p>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">Runtime Example</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <div class="code-block">
+        <div class="code-header"><span>runtime.lua</span></div>
+        <pre><code><span class="kw">local</span> <span class="va">ffi</span> = <span class="va">ffi</span> <span class="kw">or</span> <span class="fn">require</span>(<span class="str">"ffi"</span>)
+
+<span class="kw">register_callback</span>(<span class="str">"draw"</span>, <span class="kw">function</span>()
+    <span class="kw">local</span> <span class="va">name</span> = <span class="va">environment</span>.<span class="fn">script_name</span>()
+    <span class="fn">render.text</span>(<span class="num">20</span>, <span class="num">20</span>, <span class="str">"loaded: "</span> .. <span class="va">name</span>, <span class="fn">color_t</span>(<span class="num">0.9</span>, <span class="num">0.9</span>, <span class="num">0.9</span>, <span class="num">1.0</span>), <span class="num">12</span>)
+<span class="kw">end</span>)</code></pre>
+      </div>
+    </div>
+    </div>
+  </div>
+</section>
+
+<!-- Callbacks -->
+<section class="section" id="callbacks">
+  <h2 class="section-title">Callbacks</h2>
+  <p class="section-desc">Main integration point between Lua and the cheat runtime.</p>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">register_callback(name, fn)</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <p>Registers a callback for the current script.</p>
+      <div class="param"><code>name</code> - callback name (string)</div>
+      <div class="param"><code>fn</code> - Lua function</div>
+      <div class="code-block">
+        <pre><code><span class="kw">register_callback</span>(<span class="str">"draw"</span>, <span class="kw">function</span>()
+    <span class="fn">render.text</span>(<span class="num">20</span>, <span class="num">20</span>, <span class="str">"hello"</span>, <span class="fn">color_t</span>(<span class="num">1.0</span>, <span class="num">1.0</span>, <span class="num">1.0</span>, <span class="num">1.0</span>), <span class="num">12</span>)
+<span class="kw">end</span>)</code></pre>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">unregister_callback(name)</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <p>Removes a previously registered callback for the current script.</p>
+    </div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">callbacks.register / callbacks.unregister</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <p>Aliases for the global <code>register_callback</code> and <code>unregister_callback</code>.</p>
+    </div>
+    </div>
+  </div>
+
+  <h3 class="sub-header">Built-In Constants</h3>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
+    <span class="func-tag">callbacks.DRAW</span>
+    <span class="func-tag">callbacks.PAINT</span>
+    <span class="func-tag">callbacks.CREATE_MOVE</span>
+    <span class="func-tag">callbacks.EVENT</span>
+    <span class="func-tag">callbacks.SHUTDOWN</span>
+  </div>
+
+  <h3 class="sub-header">Supported Callback Kinds</h3>
+
+  <div class="module-card">
+    <h3>Paint / Draw</h3>
+    <p>Names: <code>"draw"</code>, <code>"paint"</code>. Use for text, lines, boxes, indicators, debug overlays.</p>
+  </div>
+
+  <div class="module-card">
+    <h3>Create Move</h3>
+    <p>Name: <code>"create_move"</code>. Arguments: <code>cmd</code>. Use for input modification, button changes, movement helpers, angle edits.</p>
+  </div>
+
+  <div class="module-card">
+    <h3>Generic Event</h3>
+    <p>Name: <code>"event"</code>. Arguments: <code>event</code>. Receives every incoming game event.</p>
+  </div>
+
+  <div class="module-card">
+    <h3>Specific Game Event</h3>
+    <p>Any exact event name such as <code>"player_hurt"</code>, <code>"round_start"</code>, <code>"item_purchase"</code>. Arguments: <code>event</code>.</p>
+  </div>
+
+  <div class="module-card">
+    <h3>Shutdown</h3>
+    <p>Name: <code>"shutdown"</code>. Use to clean up state before the script is unloaded.</p>
+  </div>
+
+  <div class="info-box">
+    <strong>Normalized Names:</strong> <code>"draw"</code> and <code>"paint"</code> both map to paint. <code>"createmove"</code> and <code>"create_move"</code> both map to movement. Using constants avoids typos.
+  </div>
+
+  <div class="info-box">
+    <strong>Replacement:</strong> Registering the same callback name again replaces the previous function for that name.
+  </div>
+</section>
+
+<!-- API Overview -->
+<section class="section" id="api-overview">
+  <h2 class="section-title">API Overview</h2>
+  <p class="section-desc">Fast reference for the currently exposed Lua API.</p>
+
+  <h3 class="sub-header">Runtime Summary</h3>
+  <ul>
+    <li><strong>Runtime:</strong> LuaJIT</li>
+    <li><strong>FFI:</strong> Available</li>
+    <li><strong>Script folder:</strong> <code>C:\Antikira\scripts</code></li>
+    <li><strong>Auto-created example:</strong> Yes</li>
+    <li>Script search paths appended to <code>package.path</code> and <code>package.cpath</code></li>
+  </ul>
+
+  <h3 class="sub-header">Global Helpers</h3>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
+    <span class="func-tag">register_callback(name, fn)</span>
+    <span class="func-tag">unregister_callback(name)</span>
+    <span class="func-tag">color_t(r, g, b, a)</span>
+  </div>
+
+  <h3 class="sub-header">Global Tables</h3>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
+    <span class="func-tag">antikira</span>
+    <span class="func-tag">callbacks</span>
+    <span class="func-tag">globals</span>
+    <span class="func-tag">global_vars</span>
+    <span class="func-tag">engine</span>
+    <span class="func-tag">entitylist</span>
+    <span class="func-tag">render</span>
+    <span class="func-tag">imgui</span>
+    <span class="func-tag">menu</span>
+    <span class="func-tag">environment</span>
+    <span class="func-tag">config</span>
+    <span class="func-tag">buttons</span>
+  </div>
+
+  <h3 class="sub-header">Callback Names</h3>
+  <ul>
+    <li><code>"draw"</code>, <code>"paint"</code></li>
+    <li><code>"create_move"</code></li>
+    <li><code>"event"</code></li>
+    <li><code>"shutdown"</code></li>
+    <li>Any concrete game event name: <code>"player_hurt"</code>, <code>"round_start"</code>, etc.</li>
+  </ul>
+
+  <h3 class="sub-header">Color Type</h3>
+  <div class="code-block">
+    <pre><code><span class="kw">local</span> <span class="va">c</span> = <span class="fn">color_t</span>(<span class="num">1.0</span>, <span class="num">0.2</span>, <span class="num">0.2</span>, <span class="num">1.0</span>)
+<span class="fn">print</span>(<span class="va">c</span>[<span class="num">1</span>], <span class="va">c</span>[<span class="num">2</span>], <span class="va">c</span>[<span class="num">3</span>], <span class="va">c</span>[<span class="num">4</span>])
+<span class="fn">print</span>(<span class="va">c</span>.<span class="va">r</span>, <span class="va">c</span>.<span class="va">g</span>, <span class="va">c</span>.<span class="va">b</span>, <span class="va">c</span>.<span class="va">a</span>)</code></pre>
+  </div>
+</section>
+
+<!-- Module: antikira -->
+<section class="section" id="module-antikira">
+  <h2 class="section-title">Module: <code>antikira</code></h2>
+  <p class="section-desc">Utility functions owned by the runtime itself.</p>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">antikira.log(text)</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <p>Writes a log line prefixed as Lua output in the cheat log.</p>
+      <div class="param"><code>text</code> - string</div>
+      <div class="code-block">
+        <pre><code><span class="fn">antikira.log</span>(<span class="str">"hello from lua"</span>)</code></pre>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">antikira.notify(text)</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <p>Shows an in-game notification through the overlay notification system.</p>
+      <div class="param"><code>text</code> - string</div>
+      <div class="code-block">
+        <pre><code><span class="fn">antikira.notify</span>(<span class="str">"script loaded"</span>)</code></pre>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">antikira.script_name()</span>
+        <span class="fn-returns">-> string</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <p>Returns the current script file name without the <code>.lua</code> extension.</p>
+      <div class="code-block">
+        <pre><code><span class="fn">antikira.log</span>(<span class="str">"current script: "</span> .. <span class="fn">antikira.script_name</span>())</code></pre>
+      </div>
+    </div>
+    </div>
+  </div>
+</section>
+
+<!-- Module: globals -->
+<section class="section" id="module-globals">
+  <h2 class="section-title">Module: <code>globals</code></h2>
+  <p class="section-desc">Alias: <code>global_vars</code>. Engine timing and shared state helpers.</p>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">globals.curtime()</span>
+        <span class="fn-returns">-> number</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns engine <code>curtime</code>.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">globals.realtime()</span>
+        <span class="fn-returns">-> number</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns engine real time.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">globals.frametime()</span>
+        <span class="fn-returns">-> number</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns current frame time.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">globals.tickcount()</span>
+        <span class="fn-returns">-> integer</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns current engine tick count.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">globals.map_name()</span>
+        <span class="fn-returns">-> string</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns current map name. If no map is active, returns empty string.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">globals.screen_size()</span>
+        <span class="fn-returns">-> number, number</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <p>Returns <code>screen_w</code> and <code>screen_h</code>.</p>
+    </div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">Example</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <div class="code-block">
+        <pre><code><span class="kw">register_callback</span>(<span class="str">"draw"</span>, <span class="kw">function</span>()
+    <span class="kw">local</span> <span class="va">map</span> = <span class="fn">globals.map_name</span>()
+    <span class="kw">local</span> <span class="va">tick</span> = <span class="fn">globals.tickcount</span>()
+    <span class="fn">render.text</span>(<span class="num">20</span>, <span class="num">20</span>, (<span class="str">"map=%s tick=%d"</span>):<span class="fn">format</span>(<span class="va">map</span>, <span class="va">tick</span>), <span class="fn">color_t</span>(<span class="num">1.0</span>, <span class="num">1.0</span>, <span class="num">1.0</span>, <span class="num">1.0</span>), <span class="num">12</span>)
+<span class="kw">end</span>)</code></pre>
+      </div>
+    </div>
+    </div>
+  </div>
+</section>
+
+<!-- Module: engine -->
+<section class="section" id="module-engine">
+  <h2 class="section-title">Module: <code>engine</code></h2>
+  <p class="section-desc">Client engine helpers.</p>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">engine.is_in_game()</span>
+        <span class="fn-returns">-> boolean</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns whether the engine is currently in a game session.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">engine.is_connected()</span>
+        <span class="fn-returns">-> boolean</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns whether the client is connected.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">engine.execute_cmd(cmd)</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <p>Executes a client command through the unrestricted client command path.</p>
+      <div class="param">Aliases: <code>engine.exec(cmd)</code>, <code>engine.execute_client_cmd(cmd)</code></div>
+      <div class="code-block">
+        <pre><code><span class="fn">engine.execute_cmd</span>(<span class="str">"say hello from lua"</span>)</code></pre>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">engine.get_level_name()</span>
+        <span class="fn-returns">-> string</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns the current map name. Alias for <code>globals.map_name()</code>.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Module: entitylist -->
+<section class="section" id="module-entitylist">
+  <h2 class="section-title">Module: <code>entitylist</code></h2>
+  <p class="section-desc">Entity lookup helpers.</p>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">entitylist.get_local_pawn()</span>
+        <span class="fn-returns">-> entity|nil</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns the local player pawn if available.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">entitylist.get_local_controller()</span>
+        <span class="fn-returns">-> entity|nil</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns the local player controller if available.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">entitylist.get_highest_index()</span>
+        <span class="fn-returns">-> integer</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns the current highest entity index reported by the entity system.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">entitylist.get_entity(index)</span>
+        <span class="fn-returns">-> entity|nil</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <p>Returns the entity for a raw entity index.</p>
+      <div class="param"><code>index</code> - integer entity index</div>
+    </div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">entitylist.get_players()</span>
+        <span class="fn-returns">-> table</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <p>Returns an array-style Lua table of player pawns. Invalid/missing players skipped. Indexes are compacted from 1.</p>
+      <div class="code-block">
+        <pre><code><span class="kw">for</span> <span class="va">i</span>, <span class="va">player</span> <span class="kw">in</span> <span class="fn">ipairs</span>(<span class="fn">entitylist.get_players</span>()) <span class="kw">do</span>
+    <span class="kw">if</span> <span class="va">player</span>:<span class="fn">is_valid</span>() <span class="kw">and</span> <span class="va">player</span>:<span class="fn">is_alive</span>() <span class="kw">then</span>
+        <span class="fn">antikira.log</span>(<span class="va">player</span>:<span class="fn">get_name</span>())
+    <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+      </div>
+    </div>
+    </div>
+  </div>
+</section>
+
+<!-- Module: render -->
+<section class="section" id="module-render">
+  <h2 class="section-title">Module: <code>render</code></h2>
+  <p class="section-desc">Alias: <code>imgui</code>. Immediate drawing helpers backed by the ImGui background draw list.</p>
+
+  <div class="info-box">
+    <strong>Color Input:</strong> Every drawing function supports two forms: integer RGBA (<code>255, 255, 255, 255</code>) or <code>color_t(1.0, 1.0, 1.0, 1.0)</code> with normalized 0.0..1.0 values.
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">render.screen_size()</span>
+        <span class="fn-returns">-> number, number</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <p>Returns <code>screen_w</code>, <code>screen_h</code>. Alias: <code>render.get_screen_size()</code>.</p>
+    </div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">render.text(x, y, text, color[, size])</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <p>Draws text on the background draw list. Optional <code>size</code> (default: medium font legacy size).</p>
+    </div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">render.line(x1, y1, x2, y2, color[, thickness])</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Draws a line.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">render.rect(x, y, w, h, color[, rounding[, thickness]])</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Draws an outlined rectangle.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">render.rect_filled(x, y, w, h, color[, rounding])</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Draws a filled rectangle.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">render.circle(x, y, radius, color[, segments[, thickness]])</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Draws an outlined circle. Default segments: 32.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">render.circle_filled(x, y, radius, color[, segments])</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Draws a filled circle. Default segments: 32.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">render.world_to_screen(x, y, z)</span>
+        <span class="fn-returns">-> boolean, number, number</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <p>Returns <code>visible</code>, <code>screen_x</code>, <code>screen_y</code>. Alias: <code>math.world_to_screen(x, y, z)</code>.</p>
+    </div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">Render Example</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <div class="code-block">
+        <pre><code><span class="kw">register_callback</span>(<span class="str">"draw"</span>, <span class="kw">function</span>()
+    <span class="kw">local</span> <span class="va">local_pawn</span> = <span class="fn">entitylist.get_local_pawn</span>()
+    <span class="kw">if</span> <span class="kw">not</span> <span class="va">local_pawn</span> <span class="kw">or</span> <span class="kw">not</span> <span class="va">local_pawn</span>:<span class="fn">is_valid</span>() <span class="kw">then</span> <span class="kw">return</span> <span class="kw">end</span>
+
+    <span class="kw">local</span> <span class="va">x</span>, <span class="va">y</span>, <span class="va">z</span> = <span class="va">local_pawn</span>:<span class="fn">get_origin</span>()
+    <span class="kw">local</span> <span class="va">visible</span>, <span class="va">sx</span>, <span class="va">sy</span> = <span class="fn">render.world_to_screen</span>(<span class="va">x</span>, <span class="va">y</span>, <span class="va">z</span> + <span class="num">72.0</span>)
+    <span class="kw">if</span> <span class="va">visible</span> <span class="kw">then</span>
+        <span class="fn">render.circle_filled</span>(<span class="va">sx</span>, <span class="va">sy</span>, <span class="num">4</span>, <span class="fn">color_t</span>(<span class="num">0.2</span>, <span class="num">1.0</span>, <span class="num">0.4</span>, <span class="num">1.0</span>), <span class="num">24</span>)
+        <span class="fn">render.text</span>(<span class="va">sx</span> + <span class="num">8</span>, <span class="va">sy</span> - <span class="num">6</span>, <span class="va">local_pawn</span>:<span class="fn">get_name</span>(), <span class="fn">color_t</span>(<span class="num">1.0</span>, <span class="num">1.0</span>, <span class="num">1.0</span>, <span class="num">1.0</span>), <span class="num">12</span>)
+    <span class="kw">end</span>
+<span class="kw">end</span>)</code></pre>
+      </div>
+    </div>
+    </div>
+  </div>
+</section>
+
+<!-- Module: menu -->
+<section class="section" id="module-menu">
+  <h2 class="section-title">Module: <code>menu</code></h2>
+  <p class="section-desc">Read-only menu state helpers.</p>
+
+  <div class="info-box">
+    <strong>Note:</strong> This module does not create or modify menu widgets yet. Scripts interact with existing values through the <code>config</code> module.
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">menu.is_open()</span>
+        <span class="fn-returns">-> boolean</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns whether the Antikira menu is currently open.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">menu.get_pos()</span>
+        <span class="fn-returns">-> number, number</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns <code>x</code>, <code>y</code> — menu window top-left position.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">menu.get_size()</span>
+        <span class="fn-returns">-> number, number</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns <code>w</code>, <code>h</code> — current menu window size.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">Menu Example</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <div class="code-block">
+        <pre><code><span class="kw">register_callback</span>(<span class="str">"draw"</span>, <span class="kw">function</span>()
+    <span class="kw">if</span> <span class="kw">not</span> <span class="fn">menu.is_open</span>() <span class="kw">then</span> <span class="kw">return</span> <span class="kw">end</span>
+    <span class="kw">local</span> <span class="va">x</span>, <span class="va">y</span> = <span class="fn">menu.get_pos</span>()
+    <span class="fn">render.text</span>(<span class="va">x</span>, <span class="va">y</span> - <span class="num">18</span>, <span class="str">"menu open"</span>, <span class="fn">color_t</span>(<span class="num">1.0</span>, <span class="num">0.8</span>, <span class="num">0.2</span>, <span class="num">1.0</span>), <span class="num">12</span>)
+<span class="kw">end</span>)</code></pre>
+      </div>
+    </div>
+    </div>
+  </div>
+</section>
+
+<!-- Module: environment -->
+<section class="section" id="module-environment">
+  <h2 class="section-title">Module: <code>environment</code></h2>
+  <p class="section-desc">Script path helpers.</p>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">environment.scripts_path()</span>
+        <span class="fn-returns">-> string</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns the scripts directory path: <code>C:\Antikira\scripts</code></p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">environment.script_path()</span>
+        <span class="fn-returns">-> string</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns the full path of the current script file.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">environment.script_name()</span>
+        <span class="fn-returns">-> string</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns the current script name. Same as <code>antikira.script_name()</code>.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">Example</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <div class="code-block">
+        <pre><code><span class="fn">antikira.log</span>(<span class="str">"scripts folder: "</span> .. <span class="fn">environment.scripts_path</span>())
+<span class="fn">antikira.log</span>(<span class="str">"script path: "</span> .. <span class="fn">environment.script_path</span>())
+<span class="fn">antikira.log</span>(<span class="str">"script name: "</span> .. <span class="fn">environment.script_name</span>())</code></pre>
+      </div>
+    </div>
+    </div>
+  </div>
+</section>
+
+<!-- Module: config -->
+<section class="section" id="module-config">
+  <h2 class="section-title">Module: <code>config</code></h2>
+  <p class="section-desc">Direct access to existing Antikira config variables from Lua.</p>
+
+  <div class="info-box">
+    <strong>Important:</strong> Names are exact internal C++ variable names from <code>Antikira/src/cheat/config/vars.h</code>. Lua indexes are 1-based. Current support: <code>bool</code>, <code>int</code>, <code>float</code>, <code>hellcolor</code>, <code>std::vector&lt;bool&gt;</code>, <code>std::vector&lt;int&gt;</code>.
+  </div>
+
+  <h3 class="sub-header">Discovery</h3>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">config.has(name)</span>
+        <span class="fn-returns">-> boolean</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns whether a config variable exists.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">config.get_type(name)</span>
+        <span class="fn-returns">-> string</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns type: <code>"bool"</code>, <code>"int"</code>, <code>"float"</code>, <code>"hellcolor"</code>, <code>"std::vector&lt;bool&gt;"</code>, <code>"std::vector&lt;int&gt;"</code>.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">config.list([type_name])</span>
+        <span class="fn-returns">-> table</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <p>Returns array-style table of all known config variable names. Filtered by type if <code>type_name</code> passed.</p>
+    </div>
+    </div>
+  </div>
+
+  <h3 class="sub-header">Bool Access</h3>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">config.get_bool(name) / set_bool(name, value) / toggle_bool(name)</span>
+        <span class="fn-returns">-> boolean</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <div class="code-block">
+        <pre><code><span class="fn">config.set_bool</span>(<span class="str">"m_enabled_autostrafe"</span>, <span class="kw">true</span>)
+<span class="kw">local</span> <span class="va">new_state</span> = <span class="fn">config.toggle_bool</span>(<span class="str">"m_enabled_watermark"</span>)</code></pre>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <h3 class="sub-header">Int Access</h3>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">config.get_int(name) / set_int(name, value)</span>
+        <span class="fn-returns">-> integer</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <div class="code-block">
+        <pre><code><span class="fn">config.set_int</span>(<span class="str">"m_autostrafe_mode"</span>, <span class="num">1</span>)
+<span class="fn">config.set_int</span>(<span class="str">"m_hitchance_awp"</span>, <span class="num">70</span>)</code></pre>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <h3 class="sub-header">Float Access</h3>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">config.get_float(name) / set_float(name, value)</span>
+        <span class="fn-returns">-> number</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <div class="code-block">
+        <pre><code><span class="fn">config.set_float</span>(<span class="str">"m_bar_glow_intensity"</span>, <span class="num">1.5</span>)</code></pre>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <h3 class="sub-header">Color Access</h3>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">config.get_color(name) / set_color(name, r, g, b, a | color)</span>
+        <span class="fn-returns">-> color</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <div class="code-block">
+        <pre><code><span class="kw">local</span> <span class="va">c</span> = <span class="fn">config.get_color</span>(<span class="str">"m_enemy_glow_color"</span>)
+<span class="fn">config.set_color</span>(<span class="str">"m_enemy_glow_color"</span>, <span class="fn">color_t</span>(<span class="num">1.0</span>, <span class="num">0.15</span>, <span class="num">0.15</span>, <span class="num">1.0</span>))
+<span class="fn">config.set_color</span>(<span class="str">"m_world_color"</span>, <span class="num">255</span>, <span class="num">200</span>, <span class="num">200</span>, <span class="num">255</span>)</code></pre>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <h3 class="sub-header">Vector Access</h3>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">config.get_bool_at(name, index) / set_bool_at(name, index, value)</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <p>Known <code>m_removals</code> indexes: 1=scope, 2=local name, 3=team names, 4=smoke, 5=flash, 6=legs, 7=aimpunch.</p>
+      <div class="code-block">
+        <pre><code><span class="fn">config.set_bool_at</span>(<span class="str">"m_removals"</span>, <span class="num">4</span>, <span class="kw">true</span>)
+<span class="fn">config.set_bool_at</span>(<span class="str">"m_removals"</span>, <span class="num">5</span>, <span class="kw">true</span>)</code></pre>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">config.get_int_at(name, index) / set_int_at(name, index, value)</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>For flat <code>std::vector&lt;int&gt;</code> config values.</p></div>
+    </div>
+  </div>
+
+  <h3 class="sub-header">Practical Examples</h3>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">Autostrafe</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <div class="code-block">
+        <pre><code><span class="fn">config.set_bool</span>(<span class="str">"m_enabled_autostrafe"</span>, <span class="kw">true</span>)
+<span class="fn">config.set_int</span>(<span class="str">"m_autostrafe_mode"</span>, <span class="num">1</span>)
+<span class="fn">config.set_int</span>(<span class="str">"m_autostrafe_boost"</span>, <span class="num">100</span>)</code></pre>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">Hitchance</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <div class="code-block">
+        <pre><code><span class="fn">config.set_int</span>(<span class="str">"m_hitchance_awp"</span>, <span class="num">72</span>)
+<span class="fn">config.set_int</span>(<span class="str">"m_hitchance_scout"</span>, <span class="num">68</span>)
+<span class="fn">config.set_int</span>(<span class="str">"m_hitchance_ar"</span>, <span class="num">55</span>)</code></pre>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <div class="warning-box info-box">
+    <strong>Error Behavior:</strong> The runtime raises a Lua error if you use an unknown variable name, call a getter/setter with the wrong type, or use an out-of-range vector index.
+  </div>
+</section>
+
+<!-- Module: buttons -->
+<section class="section" id="module-buttons">
+  <h2 class="section-title">Module: <code>buttons</code></h2>
+  <p class="section-desc">Bitmask constants for the <code>cmd</code> object used inside <code>"create_move"</code> callbacks.</p>
+
+  <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
+    <span class="func-tag">buttons.IN_ATTACK</span>
+    <span class="func-tag">buttons.IN_ATTACK2</span>
+    <span class="func-tag">buttons.IN_JUMP</span>
+    <span class="func-tag">buttons.IN_DUCK</span>
+    <span class="func-tag">buttons.IN_FORWARD</span>
+    <span class="func-tag">buttons.IN_BACK</span>
+    <span class="func-tag">buttons.IN_USE</span>
+    <span class="func-tag">buttons.IN_MOVELEFT</span>
+    <span class="func-tag">buttons.IN_MOVERIGHT</span>
+    <span class="func-tag">buttons.IN_SPEED</span>
+    <span class="func-tag">buttons.IN_WALK</span>
+    <span class="func-tag">buttons.IN_RELOAD</span>
+    <span class="func-tag">buttons.IN_SCORE</span>
+    <span class="func-tag">buttons.IN_ZOOM</span>
+    <span class="func-tag">buttons.IN_SPRINT</span>
+  </div>
+
+  <div class="info-box">
+    <strong>Note:</strong> <code>buttons.IN_WALK</code> is a compatibility alias and maps to the same bit as <code>IN_SPEED</code>.
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">Buttons Example</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <div class="code-block">
+        <pre><code><span class="kw">register_callback</span>(<span class="str">"create_move"</span>, <span class="kw">function</span>(<span class="va">cmd</span>)
+    <span class="kw">if</span> <span class="va">cmd</span>:<span class="fn">has_button</span>(<span class="va">buttons</span>.<span class="va">IN_JUMP</span>) <span class="kw">then</span>
+        <span class="va">cmd</span>:<span class="fn">add_button</span>(<span class="va">buttons</span>.<span class="va">IN_DUCK</span>)
+    <span class="kw">end</span>
+<span class="kw">end</span>)</code></pre>
+      </div>
+    </div>
+    </div>
+  </div>
+</section>
+
+<!-- Object: entity -->
+<section class="section" id="object-entity">
+  <h2 class="section-title">Object: <code>entity</code></h2>
+  <p class="section-desc">Entity objects returned by <code>entitylist</code> and event helpers.</p>
+
+  <div class="warning-box info-box">
+    <strong>Validity:</strong> Always guard dynamic entities: <code>if not pawn or not pawn:is_valid() then return end</code>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">entity:is_valid()</span>
+        <span class="fn-returns">-> boolean</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns whether the entity reference still resolves to a valid entity.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">entity:get_index()</span>
+        <span class="fn-returns">-> integer</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns the stored entity index.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">entity:get_address()</span>
+        <span class="fn-returns">-> integer</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns the raw entity pointer as integer (for debugging/ffi).</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">entity:get_class_name()</span>
+        <span class="fn-returns">-> string</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns the class name if available, otherwise empty string.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">entity:get_origin()</span>
+        <span class="fn-returns">-> number, number, number</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns world origin. Returns nil if no scene node.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">entity:get_velocity()</span>
+        <span class="fn-returns">-> number, number, number</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns absolute velocity. Returns nil if entity does not resolve.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">entity:get_health()</span>
+        <span class="fn-returns">-> integer</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns health or 0.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">entity:get_team()</span>
+        <span class="fn-returns">-> integer</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns team number or 0.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">entity:is_alive()</span>
+        <span class="fn-returns">-> boolean</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>For player pawns uses pawn-specific check. For non-pawns falls back to health &gt; 0.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">entity:is_scoped()</span>
+        <span class="fn-returns">-> boolean</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns whether a player pawn is scoped. Non-player entities return false.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">entity:get_eye_position()</span>
+        <span class="fn-returns">-> number, number, number</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns eye position for a player pawn. Non-player entities return nil.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">entity:get_name()</span>
+        <span class="fn-returns">-> string</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Controller: player name. Pawn: resolves controller. Other types: class name fallback.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">entity:get_controller()</span>
+        <span class="fn-returns">-> entity|nil</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Pawn returns its controller. Controller returns itself. Other types return nil.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">entity:get_pawn()</span>
+        <span class="fn-returns">-> entity|nil</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Controller returns its pawn. Pawn returns itself. Other types return nil.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">entity:is_enemy()</span>
+        <span class="fn-returns">-> boolean</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns enemy state for player pawn/controller references. Unrelated entities return false.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">entity:get_active_weapon()</span>
+        <span class="fn-returns">-> entity|nil</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns the active weapon entity for a player pawn.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">entity:get_weapon_name()</span>
+        <span class="fn-returns">-> string</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>If weapon, returns weapon data name. Otherwise empty string.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">entity:get_steamid()</span>
+        <span class="fn-returns">-> integer</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns SteamID for controllers and pawns. Otherwise returns 0.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">Entity Example</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <div class="code-block">
+        <pre><code><span class="kw">register_callback</span>(<span class="str">"draw"</span>, <span class="kw">function</span>()
+    <span class="kw">local</span> <span class="va">players</span> = <span class="fn">entitylist.get_players</span>()
+    <span class="kw">for</span> <span class="va">i</span> = <span class="num">1</span>, <span class="fn">#</span><span class="va">players</span> <span class="kw">do</span>
+        <span class="kw">local</span> <span class="va">player</span> = <span class="va">players</span>[<span class="va">i</span>]
+        <span class="kw">if</span> <span class="va">player</span>:<span class="fn">is_valid</span>() <span class="kw">and</span> <span class="va">player</span>:<span class="fn">is_alive</span>() <span class="kw">and</span> <span class="va">player</span>:<span class="fn">is_enemy</span>() <span class="kw">then</span>
+            <span class="kw">local</span> <span class="va">x</span>, <span class="va">y</span>, <span class="va">z</span> = <span class="va">player</span>:<span class="fn">get_origin</span>()
+            <span class="kw">local</span> <span class="va">visible</span>, <span class="va">sx</span>, <span class="va">sy</span> = <span class="fn">render.world_to_screen</span>(<span class="va">x</span>, <span class="va">y</span>, <span class="va">z</span> + <span class="num">72.0</span>)
+            <span class="kw">if</span> <span class="va">visible</span> <span class="kw">then</span>
+                <span class="fn">render.text</span>(<span class="va">sx</span>, <span class="va">sy</span>, <span class="va">player</span>:<span class="fn">get_name</span>(), <span class="fn">color_t</span>(<span class="num">1.0</span>, <span class="num">0.25</span>, <span class="num">0.25</span>, <span class="num">1.0</span>), <span class="num">12</span>)
+            <span class="kw">end</span>
+        <span class="kw">end</span>
+    <span class="kw">end</span>
+<span class="kw">end</span>)</code></pre>
+      </div>
+    </div>
+    </div>
+  </div>
+</section>
+
+<!-- Object: cmd -->
+<section class="section" id="object-cmd">
+  <h2 class="section-title">Object: <code>cmd</code></h2>
+  <p class="section-desc"><code>cmd</code> objects are passed into the <code>"create_move"</code> callback.</p>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">cmd:get_forward_move() / set_forward_move(value)</span>
+        <span class="fn-returns">-> number</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Read/write forward move value.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">cmd:get_side_move() / set_side_move(value)</span>
+        <span class="fn-returns">-> number</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Read/write side move value.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">cmd:get_up_move() / set_up_move(value)</span>
+        <span class="fn-returns">-> number</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Read/write up move value.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">cmd:get_view_angles()</span>
+        <span class="fn-returns">-> number, number, number</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns <code>pitch</code>, <code>yaw</code>, <code>roll</code>. Returns nil if no view-angle buffer.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">cmd:set_view_angles(pitch, yaw[, roll])</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Writes new view angles. If roll omitted, 0.0 is used.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">cmd:get_buttons() / has_button(mask) / add_button(mask) / remove_button(mask)</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <p>Button bitmask operations. Use masks from <code>buttons</code> module.</p>
+    </div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">Cmd Example</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <div class="code-block">
+        <pre><code><span class="kw">register_callback</span>(<span class="str">"create_move"</span>, <span class="kw">function</span>(<span class="va">cmd</span>)
+    <span class="kw">if</span> <span class="va">cmd</span>:<span class="fn">has_button</span>(<span class="va">buttons</span>.<span class="va">IN_JUMP</span>) <span class="kw">then</span>
+        <span class="va">cmd</span>:<span class="fn">add_button</span>(<span class="va">buttons</span>.<span class="va">IN_DUCK</span>)
+    <span class="kw">end</span>
+
+    <span class="kw">local</span> <span class="va">pitch</span>, <span class="va">yaw</span>, <span class="va">roll</span> = <span class="va">cmd</span>:<span class="fn">get_view_angles</span>()
+    <span class="kw">if</span> <span class="va">pitch</span> <span class="kw">then</span>
+        <span class="va">cmd</span>:<span class="fn">set_view_angles</span>(<span class="va">pitch</span>, <span class="va">yaw</span> + <span class="num">1.0</span>, <span class="va">roll</span>)
+    <span class="kw">end</span>
+<span class="kw">end</span>)</code></pre>
+      </div>
+    </div>
+    </div>
+  </div>
+</section>
+
+<!-- Object: event -->
+<section class="section" id="object-event">
+  <h2 class="section-title">Object: <code>event</code></h2>
+  <p class="section-desc">Event objects passed into <code>"event"</code> and event-specific callbacks.</p>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">event:get_name()</span>
+        <span class="fn-returns">-> string</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Returns the event name.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">event:get_bool(key)</span>
+        <span class="fn-returns">-> boolean</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Reads a boolean event field.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">event:get_int(key)</span>
+        <span class="fn-returns">-> integer</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Reads an integer event field.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">event:get_float(key)</span>
+        <span class="fn-returns">-> number</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Reads a float event field.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">event:get_uint64(key)</span>
+        <span class="fn-returns">-> number</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Reads unsigned 64-bit event field as Lua number.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">event:get_string(key)</span>
+        <span class="fn-returns">-> string</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Reads a string event field.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">event:get_player_pawn(key)</span>
+        <span class="fn-returns">-> entity|nil</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <p>Resolves event player field as a pawn. Common keys: <code>"userid"</code>, <code>"attacker"</code>, <code>"assister"</code>.</p>
+    </div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">event:get_player_controller(key)</span>
+        <span class="fn-returns">-> entity|nil</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Resolves event player field as a controller.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">Event Example</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <div class="code-block">
+        <pre><code><span class="kw">register_callback</span>(<span class="str">"player_hurt"</span>, <span class="kw">function</span>(<span class="va">event</span>)
+    <span class="kw">local</span> <span class="va">attacker</span> = <span class="va">event</span>:<span class="fn">get_player_controller</span>(<span class="str">"attacker"</span>)
+    <span class="kw">local</span> <span class="va">victim</span> = <span class="va">event</span>:<span class="fn">get_player_pawn</span>(<span class="str">"userid"</span>)
+    <span class="kw">local</span> <span class="va">dmg</span> = <span class="va">event</span>:<span class="fn">get_int</span>(<span class="str">"dmg_health"</span>)
+
+    <span class="kw">if</span> <span class="va">attacker</span> <span class="kw">and</span> <span class="va">attacker</span>:<span class="fn">is_valid</span>() <span class="kw">and</span> <span class="va">victim</span> <span class="kw">and</span> <span class="va">victim</span>:<span class="fn">is_valid</span>() <span class="kw">then</span>
+        <span class="fn">antikira.log</span>((<span class="str">"%s hurt %s for %d"</span>):<span class="fn">format</span>(
+            <span class="va">attacker</span>:<span class="fn">get_name</span>(),
+            <span class="va">victim</span>:<span class="fn">get_name</span>(),
+            <span class="va">dmg</span>
+        ))
+    <span class="kw">end</span>
+<span class="kw">end</span>)</code></pre>
+      </div>
+    </div>
+    </div>
+  </div>
+</section>
+
+<div class="footer">
+  <span>Antikira Lua API &mdash; Built-in LuaJIT Runtime</span>
+  <a href="https://github.com/Niroid1237/antikira-lua-api" target="_blank">
+    <i data-lucide="github" style="width:14px;height:14px;vertical-align:middle;margin-right:4px"></i>
+    GitHub
+  </a>
+</div>
+
+</div><!-- /content -->
+
+<!-- On This Page -->
+<nav class="on-this-page" id="onThisPage">
+  <h4>On this page</h4>
+  <a href="#overview">Overview</a>
+  <a href="#getting-started">Getting Started</a>
+  <a href="#runtime">Runtime</a>
+  <a href="#callbacks">Callbacks</a>
+  <a href="#api-overview">API Overview</a>
+  <a href="#module-antikira">antikira</a>
+  <a href="#module-globals">globals</a>
+  <a href="#module-engine">engine</a>
+  <a href="#module-entitylist">entitylist</a>
+  <a href="#module-render">render</a>
+  <a href="#module-menu">menu</a>
+  <a href="#module-environment">environment</a>
+  <a href="#module-config">config</a>
+  <a href="#module-buttons">buttons</a>
+  <a href="#object-entity">entity</a>
+  <a href="#object-cmd">cmd</a>
+  <a href="#object-event">event</a>
+</nav>
+</div><!-- /content-wrap -->
+
+</div><!-- /main -->
+
+<button class="scroll-top" id="scrollTop" aria-label="Scroll to top">
+  <i data-lucide="arrow-up"></i>
+</button>
+
+<script>
+lucide.createIcons();
+
+// Toggle card
+function toggleCard(header) {
+  const card = header.closest('.card');
+  card.classList.toggle('open');
+}
+
+// Sidebar toggle
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sidebarOverlay');
+const toggleBtn = document.getElementById('sidebarToggle');
+
+toggleBtn.addEventListener('click', () => {
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('open');
+});
+
+overlay.addEventListener('click', () => {
+  sidebar.classList.remove('open');
+  overlay.classList.remove('open');
+});
+
+// Close sidebar on nav click (mobile)
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    if (window.innerWidth <= 900) {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('open');
+    }
+  });
+});
+
+// Scroll spy with IntersectionObserver
+const sections = document.querySelectorAll('.section[id]');
+const navItems = document.querySelectorAll('.nav-item');
+const otpLinks = document.querySelectorAll('.on-this-page a');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.getAttribute('id');
+      navItems.forEach(item => {
+        item.classList.toggle('active', item.getAttribute('href') === '#' + id);
+      });
+      otpLinks.forEach(link => {
+        link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+      });
+    }
+  });
+}, { rootMargin: '-80px 0px -60% 0px' });
+
+sections.forEach(s => observer.observe(s));
+
+// Section fade-in animation
+const sectionObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+
+sections.forEach(s => sectionObserver.observe(s));
+// Make first section visible immediately
+if (sections.length > 0) sections[0].classList.add('visible');
+
+// Scroll to top
+const scrollTopBtn = document.getElementById('scrollTop');
+window.addEventListener('scroll', () => {
+  scrollTopBtn.classList.toggle('visible', window.scrollY > 300);
+});
+scrollTopBtn.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// Search / filter
+const searchInput = document.getElementById('searchInput');
+const sidebarNav = document.getElementById('sidebarNav');
+const sidebarItems = sidebarNav.querySelectorAll('.nav-item');
+
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.toLowerCase().trim();
+  sidebarItems.forEach(item => {
+    const text = item.textContent.toLowerCase();
+    item.style.display = (!q || text.includes(q)) ? '' : 'none';
+  });
+  // Also show/hide nav section headers
+  sidebarNav.querySelectorAll('.nav-section').forEach(section => {
+    let next = section.nextElementSibling;
+    let hasVisible = false;
+    while (next && next.classList.contains('nav-item')) {
+      if (next.style.display !== 'none') { hasVisible = true; break; }
+      next = next.nextElementSibling;
+    }
+    section.style.display = hasVisible ? '' : 'none';
+  });
+});
+
+// Open all cards by default
+document.querySelectorAll('.card.open .card-body-wrap').forEach(wrap => {
+  wrap.style.maxHeight = wrap.scrollHeight + 'px';
+});
+
+// Recalc on window resize for open cards
+window.addEventListener('resize', () => {
+  document.querySelectorAll('.card.open .card-body-wrap').forEach(wrap => {
+    wrap.style.maxHeight = wrap.scrollHeight + 'px';
+  });
+});
+</script>
+</body>
+</html>
