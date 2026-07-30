@@ -1,29 +1,32 @@
 # Antikira Lua API
 
-LuaJIT scripting API for Antikira CS2 cheat.
-
-## Overview
-
-Scripts run in a LuaJIT runtime with access to:
-
-- Render primitives (text, lines, shapes)
-- Game state (entities, globals, engine)
-- Config read/write
-- Event callbacks
-- FFI for advanced use
-
-Script folder: `C:\Antikira\scripts`
+This repository hosts the public LuaJIT scripting documentation for Antikira, including `ffi` notes, callback reference, config access, runtime behavior, and GitHub Pages publishing setup.
 
 ## Documentation
 
-- [Getting Started](getting-started.md)
-- [API Reference](api.md)
-- [FFI Notes](ffi.md)
+- [Docs Home](docs/index.md)
+- [Getting Started](docs/lua/getting-started.md)
+- [API Overview](docs/lua/api.md)
+- [FFI Notes](docs/lua/ffi.md)
 
-## Quick Example
+## GitHub Pages
 
-```lua
-register_callback("draw", function()
-    render.text(20, 20, "hello from lua", color_t(1.0, 1.0, 1.0, 1.0), 12)
-end)
-```
+This repository includes:
+
+- `mkdocs.yml`
+- `.github/workflows/docs.yml`
+- [Publishing Guide](docs/publishing.md)
+
+Once GitHub Pages is enabled for GitHub Actions, pushes to `master` will publish the docs site.
+
+## Scope
+
+The docs describe the Lua API currently exposed by Antikira's in-project scripting runtime:
+
+- callbacks
+- rendering
+- entities
+- events
+- user commands
+- config value access
+- `ffi`

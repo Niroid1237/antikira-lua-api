@@ -1,0 +1,49 @@
+site_name: Antikira Lua API
+site_description: LuaJIT and FFI scripting documentation for Antikira
+site_url: https://niroid1237.github.io/antikira-lua-api/
+repo_name: Niroid1237/antikira-lua-api
+
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+markdown_extensions:
+  - admonition
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+
+nav:
+  - Home: index.md
+  - Lua:
+    - Getting Started: lua/getting-started.md
+    - Runtime: lua/runtime.md
+    - Callbacks: lua/callbacks.md
+    - API Overview: lua/api.md
+    - FFI Notes: lua/ffi.md
+  - Publishing:
+    - GitHub Pages: publishing.md
+  - Modules:
+    - antikira: lua/modules/antikira.md
+    - globals: lua/modules/globals.md
+    - engine: lua/modules/engine.md
+    - entitylist: lua/modules/entitylist.md
+    - render: lua/modules/render.md
+    - menu: lua/modules/menu.md
+    - environment: lua/modules/environment.md
+    - config: lua/modules/config.md
+    - buttons: lua/modules/buttons.md
+  - Objects:
+    - entity: lua/objects/entity.md
+    - cmd: lua/objects/cmd.md
+    - event: lua/objects/event.md
