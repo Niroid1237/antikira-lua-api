@@ -18,7 +18,7 @@
 }
 
 /* ================================
-   AGGRESSIVE DARK MODE FIX — kill all white
+   AGGRESSIVE DARK MODE FIX — kill ALL white
    ================================ */
 [data-md-color-scheme="slate"] {
   --md-default-bg-color: #0a0c0f;
@@ -35,30 +35,31 @@
   --ak-glow: rgba(88, 166, 255, 0.15);
 }
 
-[data-md-color-scheme="slate"] .md-main,
-[data-md-color-scheme="slate"] .md-content,
-[data-md-color-scheme="slate"] .md-content__inner,
-[data-md-color-scheme="slate"] .md-sidebar,
-[data-md-color-scheme="slate"] .md-sidebar--primary,
-[data-md-color-scheme="slate"] .md-sidebar--secondary,
-[data-md-color-scheme="slate"] .md-sidebar__scrollwrap,
-[data-md-color-scheme="slate"] .md-nav,
-[data-md-color-scheme="slate"] .md-nav--primary,
-[data-md-color-scheme="slate"] .md-nav--secondary,
-[data-md-color-scheme="slate"] .md-nav__list,
-[data-md-color-scheme="slate"] .md-nav__item,
-[data-md-color-scheme="slate"] .md-nav__link,
-[data-md-color-scheme="slate"] article,
-[data-md-color-scheme="slate"] main {
-  background: transparent !important;
+body[data-md-color-scheme="slate"] {
+  background-color: #0a0c0f !important;
 }
 
-[data-md-color-scheme="slate"] .md-nav--primary .md-nav__title {
+body[data-md-color-scheme="slate"] .md-main,
+body[data-md-color-scheme="slate"] .md-content,
+body[data-md-color-scheme="slate"] .md-content__inner,
+body[data-md-color-scheme="slate"] .md-sidebar,
+body[data-md-color-scheme="slate"] .md-sidebar--primary,
+body[data-md-color-scheme="slate"] .md-sidebar--secondary,
+body[data-md-color-scheme="slate"] .md-sidebar__scrollwrap,
+body[data-md-color-scheme="slate"] .md-nav,
+body[data-md-color-scheme="slate"] .md-nav--primary,
+body[data-md-color-scheme="slate"] .md-nav--secondary,
+body[data-md-color-scheme="slate"] .md-nav__list,
+body[data-md-color-scheme="slate"] .md-nav__item,
+body[data-md-color-scheme="slate"] .md-nav__link,
+body[data-md-color-scheme="slate"] article,
+body[data-md-color-scheme="slate"] main,
+body[data-md-color-scheme="slate"] .md-content__inner > :is(main, article, div) {
+  background-color: transparent !important;
+}
+
+body[data-md-color-scheme="slate"] .md-nav--primary .md-nav__title {
   background: rgba(17, 20, 24, 0.95) !important;
-}
-
-[data-md-color-scheme="slate"] .md-nav--primary .md-nav__list {
-  background: transparent !important;
 }
 
 /* SCROLLBAR */
