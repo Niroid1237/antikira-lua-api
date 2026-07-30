@@ -1101,6 +1101,7 @@ p code, li code {
     <span class="func-tag">callbacks.CREATE_MOVE</span>
     <span class="func-tag">callbacks.EVENT</span>
     <span class="func-tag">callbacks.SHUTDOWN</span>
+    <span class="func-tag">callbacks.MENU</span>
   </div>
 
   <h3 class="sub-header">Supported Callback Kinds</h3>
@@ -1128,6 +1129,11 @@ p code, li code {
   <div class="module-card">
     <h3>Shutdown</h3>
     <p>Name: <code>"shutdown"</code>. Use to clean up state before the script is unloaded.</p>
+  </div>
+
+  <div class="module-card">
+    <h3>Menu</h3>
+    <p>Name: <code>"menu"</code>. Use to build custom UI widgets in the SCRIPTS tab. Widget functions like <code>menu.checkbox</code>, <code>menu.slider_int</code>, etc. are only available inside this callback.</p>
   </div>
 
   <div class="info-box">
@@ -1181,6 +1187,7 @@ p code, li code {
     <li><code>"draw"</code>, <code>"paint"</code></li>
     <li><code>"create_move"</code></li>
     <li><code>"event"</code></li>
+    <li><code>"menu"</code> — build custom script UI in the SCRIPTS tab</li>
     <li><code>"shutdown"</code></li>
     <li>Any concrete game event name: <code>"player_hurt"</code>, <code>"round_start"</code>, etc.</li>
   </ul>
@@ -1648,11 +1655,14 @@ p code, li code {
 <!-- Module: menu -->
 <section class="section" id="module-menu">
   <h2 class="section-title">Module: <code>menu</code></h2>
-  <p class="section-desc">Read-only menu state helpers.</p>
+  <p class="section-desc">Menu state helpers and custom script UI widgets.</p>
 
   <div class="info-box">
-    <strong>Note:</strong> This module does not create or modify menu widgets yet. Scripts interact with existing values through the <code>config</code> module.
+    <strong>Menu Callback:</strong> Use <code>register_callback("menu", fn)</code> to build custom UI for your script.
+    Widget functions only work inside a <code>"menu"</code> callback.
   </div>
+
+  <h3>Menu State</h3>
 
   <div class="card open">
     <div class="card-header" onclick="toggleCard(this)">
@@ -1693,20 +1703,207 @@ p code, li code {
     </div>
   </div>
 
+  <h3>Custom Script UI Widgets</h3>
+
+  <p class="section-text">These functions create interactive UI widgets in the script's menu section.
+  They only work inside a <code>register_callback("menu", fn)</code> callback.
+  Widgets bind directly to existing config variables by their internal name.</p>
+
   <div class="card open">
     <div class="card-header" onclick="toggleCard(this)">
       <div class="card-header-left">
-        <span class="fn-name">Menu Example</span>
+        <span class="fn-name">menu.checkbox(label, var_name)</span>
+        <span class="fn-returns">-> boolean</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <p>Creates a checkbox bound to a <code>bool</code> config variable.</p>
+      <div class="param"><code>label</code> - display text</div>
+      <div class="param"><code>var_name</code> - name of a <code>bool</code> config variable</div>
+      <p>Returns <code>true</code> if the value was toggled this frame.</p>
+    </div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">menu.slider_int(label, var_name, min, max)</span>
+        <span class="fn-returns">-> boolean</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <p>Creates an integer slider bound to an <code>int</code> config variable.</p>
+      <div class="param"><code>label</code> - display text</div>
+      <div class="param"><code>var_name</code> - name of an <code>int</code> config variable</div>
+      <div class="param"><code>min</code> - minimum value</div>
+      <div class="param"><code>max</code> - maximum value</div>
+      <p>Returns <code>true</code> if the value was changed this frame.</p>
+    </div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">menu.slider_float(label, var_name, min, max)</span>
+        <span class="fn-returns">-> boolean</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <p>Creates a float slider bound to a <code>float</code> config variable.</p>
+      <div class="param"><code>label</code> - display text</div>
+      <div class="param"><code>var_name</code> - name of a <code>float</code> config variable</div>
+      <div class="param"><code>min</code> - minimum value</div>
+      <div class="param"><code>max</code> - maximum value</div>
+      <p>Returns <code>true</code> if the value was changed this frame.</p>
+    </div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">menu.combo(label, var_name, items)</span>
+        <span class="fn-returns">-> boolean</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <p>Creates a combo box bound to an <code>int</code> config variable.</p>
+      <div class="param"><code>label</code> - display text</div>
+      <div class="param"><code>var_name</code> - name of an <code>int</code> config variable</div>
+      <div class="param"><code>items</code> - Lua table of string options <code>{"A", "B", "C"}</code></div>
+      <p>Returns <code>true</code> if the selection changed this frame.</p>
+    </div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">menu.button(label)</span>
+        <span class="fn-returns">-> boolean</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <p>Creates a clickable button.</p>
+      <div class="param"><code>label</code> - button text</div>
+      <p>Returns <code>true</code> if the button was clicked this frame.</p>
+    </div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">menu.label(text)</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <p>Draws static label text.</p>
+      <div class="param"><code>text</code> - label text</div>
+    </div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">menu.color_picker(id, var_name)</span>
+        <span class="fn-returns">-> boolean</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <p>Creates a color picker bound to a <code>hellcolor</code> config variable.</p>
+      <div class="param"><code>id</code> - unique identifier for the picker</div>
+      <div class="param"><code>var_name</code> - name of a <code>hellcolor</code> config variable</div>
+      <p>Returns <code>true</code> if the color was changed this frame.</p>
+    </div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">menu.same_line([offset])</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body">
+      <p>Places the next widget on the same line.</p>
+      <div class="param"><code>offset</code> - optional offset from start (default 0)</div>
+    </div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">menu.separator()</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Draws a horizontal separator line.</p></div>
+    </div>
+  </div>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">menu.new_line()</span>
+      </div>
+      <i data-lucide="chevron-right" class="arrow-icon"></i>
+    </div>
+    <div class="card-body-wrap">
+    <div class="card-body"><p>Inserts a blank line.</p></div>
+    </div>
+  </div>
+
+  <h3>Example Script Menu</h3>
+
+  <div class="card open">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-header-left">
+        <span class="fn-name">Script with Custom Menu</span>
       </div>
       <i data-lucide="chevron-right" class="arrow-icon"></i>
     </div>
     <div class="card-body-wrap">
     <div class="card-body">
       <div class="code-block">
-        <pre><code><span class="kw">register_callback</span>(<span class="str">"draw"</span>, <span class="kw">function</span>()
-    <span class="kw">if</span> <span class="kw">not</span> <span class="fn">menu.is_open</span>() <span class="kw">then</span> <span class="kw">return</span> <span class="kw">end</span>
-    <span class="kw">local</span> <span class="va">x</span>, <span class="va">y</span> = <span class="fn">menu.get_pos</span>()
-    <span class="fn">render.text</span>(<span class="va">x</span>, <span class="va">y</span> - <span class="num">18</span>, <span class="str">"menu open"</span>, <span class="fn">color_t</span>(<span class="num">1.0</span>, <span class="num">0.8</span>, <span class="num">0.2</span>, <span class="num">1.0</span>), <span class="num">12</span>)
+        <pre><code><span class="kw">register_callback</span>(<span class="str">"menu"</span>, <span class="kw">function</span>()
+    <span class="fn">menu.checkbox</span>(<span class="str">"Auto Strafe"</span>, <span class="str">"m_enabled_autostrafe"</span>)
+    <span class="fn">menu.same_line</span>()
+    <span class="kw">if</span> <span class="fn">menu.button</span>(<span class="str">"Toggle Watermark"</span>) <span class="kw">then</span>
+        <span class="fn">config.toggle_bool</span>(<span class="str">"m_enabled_watermark"</span>)
+    <span class="kw">end</span>
+
+    <span class="fn">menu.separator</span>()
+
+    <span class="fn">menu.label</span>(<span class="str">"Hitchance"</span>)
+    <span class="fn">menu.slider_int</span>(<span class="str">"AWP"</span>, <span class="str">"m_hitchance_awp"</span>, <span class="num">0</span>, <span class="num">100</span>)
+    <span class="fn">menu.slider_int</span>(<span class="str">"Scout"</span>, <span class="str">"m_hitchance_scout"</span>, <span class="num">0</span>, <span class="num">100</span>)
+
+    <span class="fn">menu.separator</span>()
+
+    <span class="fn">menu.combo</span>(<span class="str">"Autostrafe Mode"</span>, <span class="str">"m_autostrafe_mode"</span>, {<span class="str">"Off"</span>, <span class="str">"Directional"</span>, <span class="str">"Rage"</span>})
+    <span class="fn">menu.slider_int</span>(<span class="str">"Boost"</span>, <span class="str">"m_autostrafe_boost"</span>, <span class="num">0</span>, <span class="num">100</span>)
 <span class="kw">end</span>)</code></pre>
       </div>
     </div>

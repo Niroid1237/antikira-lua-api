@@ -59,6 +59,7 @@ If you want full argument descriptions and examples, use the per-module pages fr
 - `"paint"`
 - `"create_move"`
 - `"event"`
+- `"menu"` — build custom script UI in the SCRIPTS tab
 - `"shutdown"`
 - any concrete game event name such as `"player_hurt"` or `"round_start"`
 

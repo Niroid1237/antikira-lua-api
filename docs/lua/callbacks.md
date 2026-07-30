@@ -50,6 +50,7 @@ Alias for `unregister_callback`.
 - `callbacks.PAINT`
 - `callbacks.CREATE_MOVE`
 - `callbacks.EVENT`
+- `callbacks.MENU`
 - `callbacks.SHUTDOWN`
 
 ## Normalized Names
@@ -142,6 +143,28 @@ Arguments:
 - none
 
 Use this to clean up state before the script is unloaded.
+
+### Menu
+
+Name:
+
+- `"menu"`
+
+Arguments:
+
+- none
+
+Use this to build custom UI widgets in the SCRIPTS tab. Inside this callback you can use `menu.checkbox`, `menu.slider_int`, `menu.combo`, `menu.button`, and other widget functions to create interactive controls bound to config variables.
+
+Example:
+
+```lua
+register_callback("menu", function()
+    menu.checkbox("Auto Strafe", "m_enabled_autostrafe")
+    menu.slider_int("Boost", "m_autostrafe_boost", 0, 100)
+    menu.combo("Mode", "m_autostrafe_mode", {"Off", "Directional", "Rage"})
+end)
+```
 
 ## Replacement Behavior
 
