@@ -4,6 +4,11 @@ Alias: `imgui`
 
 Immediate drawing helpers backed by the ImGui background draw list.
 
+<div class="ak-panel">
+  <div class="ak-kicker">Overlay Primitives</div>
+  <p>Use this module for on-screen diagnostics, indicators, labels, and lightweight visual debugging from Lua. All coordinates are in screen space unless a function explicitly says otherwise.</p>
+</div>
+
 ## Color Input Rules
 
 Every drawing function that accepts a color supports two forms:
@@ -37,6 +42,8 @@ Alias for `render.screen_size()`.
 
 ## `render.text(x, y, text, color[, size])`
 
+<div class="ak-signature"><code>render.text(x, y, text, color[, size])</code></div>
+
 Draws text on the background draw list.
 
 Parameters:
@@ -49,11 +56,15 @@ Parameters:
 
 ## `render.line(x1, y1, x2, y2, color[, thickness])`
 
+<div class="ak-signature"><code>render.line(x1, y1, x2, y2, color[, thickness])</code></div>
+
 Draws a line.
 
 ## `render.rect(x, y, w, h, r, g, b, a[, rounding[, thickness]])`
 
 ## `render.rect(x, y, w, h, color[, rounding[, thickness]])`
+
+<div class="ak-signature"><code>render.rect(x, y, w, h, color[, rounding[, thickness]])</code></div>
 
 Draws an outlined rectangle.
 
@@ -61,11 +72,15 @@ Draws an outlined rectangle.
 
 ## `render.rect_filled(x, y, w, h, color[, rounding])`
 
+<div class="ak-signature"><code>render.rect_filled(x, y, w, h, color[, rounding])</code></div>
+
 Draws a filled rectangle.
 
 ## `render.circle(x, y, radius, r, g, b, a[, segments[, thickness]])`
 
 ## `render.circle(x, y, radius, color[, segments[, thickness]])`
+
+<div class="ak-signature"><code>render.circle(x, y, radius, color[, segments[, thickness]])</code></div>
 
 Draws an outlined circle.
 
@@ -75,11 +90,15 @@ Default segment count: `32`
 
 ## `render.circle_filled(x, y, radius, color[, segments])`
 
+<div class="ak-signature"><code>render.circle_filled(x, y, radius, color[, segments])</code></div>
+
 Draws a filled circle.
 
 Default segment count: `32`
 
 ## `render.world_to_screen(x, y, z) -> boolean, number, number`
+
+<div class="ak-signature"><code>render.world_to_screen(x, y, z) -&gt; visible, screen_x, screen_y</code></div>
 
 Returns:
 

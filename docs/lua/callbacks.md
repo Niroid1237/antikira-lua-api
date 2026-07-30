@@ -4,9 +4,16 @@ Callbacks are the main integration point between Lua and the cheat runtime.
 
 You can register them either through the global helpers or through the `callbacks` table.
 
+<div class="ak-panel">
+  <div class="ak-kicker">Execution Model</div>
+  <p>A callback belongs to one loaded script state. Registering the same callback name again in the same script replaces the previous function for that name.</p>
+</div>
+
 ## Registration
 
 ### `register_callback(name, fn)`
+
+<div class="ak-signature"><code>register_callback(name, fn)</code></div>
 
 Registers a callback for the current script.
 
@@ -24,6 +31,8 @@ end)
 ```
 
 ### `unregister_callback(name)`
+
+<div class="ak-signature"><code>unregister_callback(name)</code></div>
 
 Removes a previously registered callback for the current script.
 

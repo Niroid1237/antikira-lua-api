@@ -1,0 +1,186 @@
+:root {
+  --md-primary-fg-color: #111111;
+  --md-primary-fg-color--light: #232323;
+  --md-primary-fg-color--dark: #000000;
+  --md-accent-fg-color: #d92d20;
+  --md-typeset-a-color: #c62828;
+  --ak-surface: #fff7f5;
+  --ak-border: rgba(17, 17, 17, 0.1);
+}
+
+[data-md-color-scheme="default"] {
+  --md-default-bg-color: #fcfbf9;
+  --md-default-fg-color: #151515;
+  --md-default-fg-color--light: #4f4f4f;
+  --md-default-fg-color--lighter: #727272;
+}
+
+.md-header {
+  box-shadow: 0 0.1rem 0 rgba(0, 0, 0, 0.08);
+}
+
+.md-typeset h1,
+.md-typeset h2,
+.md-typeset h3 {
+  letter-spacing: -0.02em;
+}
+
+.md-typeset h1 {
+  font-weight: 800;
+  margin-bottom: 0.6rem;
+}
+
+.md-typeset code {
+  border-radius: 0.35rem;
+}
+
+.ak-hero {
+  margin: 1rem 0 2rem;
+  padding: 1.4rem 1.4rem 1.2rem;
+  border: 1px solid var(--ak-border);
+  border-radius: 1rem;
+  background:
+    radial-gradient(circle at top right, rgba(217, 45, 32, 0.10), transparent 32%),
+    linear-gradient(135deg, #ffffff, var(--ak-surface));
+}
+
+.ak-hero h2 {
+  margin: 0.2rem 0 0.5rem;
+}
+
+.ak-hero p {
+  margin: 0;
+  max-width: 48rem;
+}
+
+.ak-hero__badge {
+  display: inline-block;
+  margin-bottom: 0.4rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(217, 45, 32, 0.1);
+  color: #9f1f17;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.ak-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.9rem;
+  margin: 1rem 0 1.75rem;
+}
+
+.ak-card {
+  display: block;
+  padding: 1rem;
+  border: 1px solid var(--ak-border);
+  border-radius: 0.9rem;
+  background: #ffffff;
+  color: inherit;
+  text-decoration: none !important;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ak-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(198, 40, 40, 0.28);
+  box-shadow: 0 0.55rem 1.2rem rgba(17, 17, 17, 0.06);
+}
+
+.ak-card strong {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.96rem;
+}
+
+.ak-card span {
+  display: block;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
+.ak-panel {
+  margin: 0.8rem 0 1.4rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--ak-border);
+  border-radius: 0.85rem;
+  background: linear-gradient(180deg, #ffffff, #fffaf8);
+}
+
+.ak-panel p:last-child,
+.ak-panel ul:last-child {
+  margin-bottom: 0;
+}
+
+.ak-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin: 0.9rem 0 1.35rem;
+}
+
+.ak-mini-card {
+  padding: 0.9rem;
+  border: 1px solid var(--ak-border);
+  border-radius: 0.85rem;
+  background: #ffffff;
+}
+
+.ak-mini-card strong {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.88rem;
+}
+
+.ak-mini-card span {
+  color: var(--md-default-fg-color--light);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.ak-signature {
+  margin: 0.7rem 0 1rem;
+  padding: 0.85rem 1rem;
+  border-left: 0.22rem solid var(--md-accent-fg-color);
+  border-radius: 0.45rem;
+  background: #111111;
+  color: #f6f4f2;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.8rem;
+  line-height: 1.65;
+  overflow-x: auto;
+}
+
+.ak-signature code {
+  background: transparent;
+  color: inherit;
+}
+
+.ak-kicker {
+  margin-bottom: 0.35rem;
+  color: #9f1f17;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.md-typeset table:not([class]) {
+  border: 1px solid var(--ak-border);
+  border-radius: 0.8rem;
+  overflow: hidden;
+}
+
+.md-typeset table:not([class]) th {
+  background: #161616;
+  color: #f7f5f2;
+}
+
+.md-typeset .admonition,
+.md-typeset details {
+  border-radius: 0.8rem;
+}

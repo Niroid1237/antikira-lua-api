@@ -1,32 +1,27 @@
-# Antikira Lua API
+# Antikira LuaJIT Scripting
 
-This repository hosts the public LuaJIT scripting documentation for Antikira, including `ffi` notes, callback reference, config access, runtime behavior, and GitHub Pages publishing setup.
+This repository contains a built-in `LuaJIT` scripting layer with `ffi` support and a menu tab for script management.
 
 ## Documentation
+
+Markdown docs:
 
 - [Docs Home](docs/index.md)
 - [Getting Started](docs/lua/getting-started.md)
 - [API Overview](docs/lua/api.md)
 - [FFI Notes](docs/lua/ffi.md)
 
-## GitHub Pages
+GitHub Pages setup:
 
-This repository includes:
-
-- `mkdocs.yml`
-- `.github/workflows/docs.yml`
+- `mkdocs.yml` is included for a standalone Antikira documentation site
+- `.github/workflows/docs.yml` is included for GitHub Pages deployment
 - [Publishing Guide](docs/publishing.md)
 
-Once GitHub Pages is enabled for GitHub Actions, pushes to `master` will publish the docs site.
+## Quick Start
 
-## Scope
+1. Build the solution in Visual Studio.
+2. Open the in-game menu and go to `SCRIPTS`.
+3. Open the scripts folder at `C:\Antikira\scripts`.
+4. Start with `example.lua`.
 
-The docs describe the Lua API currently exposed by Antikira's in-project scripting runtime:
-
-- callbacks
-- rendering
-- entities
-- events
-- user commands
-- config value access
-- `ffi`
+The project auto-builds LuaJIT during Visual Studio builds through `external\luajit\src\msvcbuild.bat`.

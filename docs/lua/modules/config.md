@@ -4,6 +4,11 @@ This module exposes direct access to existing Antikira config variables from Lua
 
 That means a script can change the same underlying values used by checkboxes, combos, sliders, and color pickers in the menu.
 
+<div class="ak-panel">
+  <div class="ak-kicker">Config Bridge</div>
+  <p>This is the current bridge between Lua and menu-backed feature settings. If you want a script to toggle, tune, or recolor an existing feature, this is usually the first module to reach for.</p>
+</div>
+
 ## Important Rules
 
 - names are exact internal C++ variable names from `Antikira/src/cheat/config/vars.h`
@@ -32,9 +37,13 @@ That means a script can change the same underlying values used by checkboxes, co
 
 ### `config.has(name) -> boolean`
 
+<div class="ak-signature"><code>config.has(name) -&gt; boolean</code></div>
+
 Returns whether a config variable exists.
 
 ### `config.get_type(name) -> string`
+
+<div class="ak-signature"><code>config.get_type(name) -&gt; string</code></div>
 
 Returns the config type string.
 
@@ -49,6 +58,8 @@ Possible values include:
 
 ### `config.list([type_name]) -> table`
 
+<div class="ak-signature"><code>config.list([type_name]) -&gt; table</code></div>
+
 Returns an array-style Lua table of all known config variable names.
 
 If `type_name` is passed, the result is filtered by exact type string.
@@ -62,6 +73,8 @@ local int_vars = config.list("int")
 ```
 
 ### `config.size(name) -> integer`
+
+<div class="ak-signature"><code>config.size(name) -&gt; integer</code></div>
 
 Returns the size of a vector-backed config variable.
 

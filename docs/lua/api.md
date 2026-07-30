@@ -4,6 +4,11 @@ This page is the fast reference for the currently exposed Lua API.
 
 If you want full argument descriptions and examples, use the per-module pages from the sidebar.
 
+<div class="ak-panel">
+  <div class="ak-kicker">Runtime Snapshot</div>
+  <p>This page is the shortest path to understanding what the Antikira Lua runtime exposes right now: globals, callback names, object types, and the main modules you can script against.</p>
+</div>
+
 ## Runtime Summary
 
 - Runtime: `LuaJIT`
@@ -11,6 +16,21 @@ If you want full argument descriptions and examples, use the per-module pages fr
 - Script folder: `C:\Antikira\scripts`
 - Auto-created example script: yes
 - Script search paths are appended to Lua `package.path` and `package.cpath`
+
+<div class="ak-mini-grid">
+  <div class="ak-mini-card">
+    <strong>Callbacks</strong>
+    <span><code>draw</code>, <code>create_move</code>, generic <code>event</code>, exact event names, and <code>shutdown</code>.</span>
+  </div>
+  <div class="ak-mini-card">
+    <strong>State Access</strong>
+    <span>Read entities, events, globals, engine state, menu state, and script environment information.</span>
+  </div>
+  <div class="ak-mini-card">
+    <strong>Mutation</strong>
+    <span>Change config values, edit command buttons and movement, and draw on the overlay.</span>
+  </div>
+</div>
 
 ## Global Helpers
 

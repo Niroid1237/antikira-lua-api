@@ -4,6 +4,26 @@
 
 They expose movement, view-angle, and button-state control for the current user command.
 
+<div class="ak-panel">
+  <div class="ak-kicker">Per-Tick Input Access</div>
+  <p>Use <code>cmd</code> inside <code>create_move</code> when a script needs to inspect or modify movement, view angles, or button flags for the current command.</p>
+</div>
+
+<div class="ak-mini-grid">
+  <div class="ak-mini-card">
+    <strong>Movement</strong>
+    <span>Forward, side, and up move getters and setters.</span>
+  </div>
+  <div class="ak-mini-card">
+    <strong>Angles</strong>
+    <span>Read and write pitch, yaw, and roll for the current command buffer.</span>
+  </div>
+  <div class="ak-mini-card">
+    <strong>Buttons</strong>
+    <span>Query, set, and clear raw button masks through the exposed helpers.</span>
+  </div>
+</div>
+
 ## `cmd:get_forward_move() -> number`
 
 Returns current forward move value.

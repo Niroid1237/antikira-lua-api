@@ -7,15 +7,16 @@ This repository now includes a `mkdocs.yml` configuration and a GitHub Actions w
 - `mkdocs.yml`
 - `.github/workflows/docs.yml`
 
-## What You Need To Change
+## Default Target
 
-This repository is already configured with:
+The current configuration targets:
 
 ```yaml
 site_url: https://niroid1237.github.io/antikira-lua-api/
+repo_url: https://github.com/Niroid1237/antikira-lua-api
 ```
 
-If you rename the repository later, update that value to match.
+If you publish from a different repository, update those values first.
 
 ## GitHub Setup
 
